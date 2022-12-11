@@ -52,7 +52,7 @@ def iss_mode():
     clear()
     # Backlight orange.
     gp.set_backlight(128, 16, 0, 0)
-    display.text("Locating ISS...", 0, 0, WIDTH, 2)
+    display.text("Locating ISS...", 0, 25, WIDTH, 2)
     display.update()
 
     old_city = CITY_UNKNOWN
@@ -152,7 +152,7 @@ try:
     clear()
     # Backlight orange.
     gp.set_backlight(128, 16, 0, 0)
-    display.text("Starting up...", 0, 0, WIDTH, 2)
+    display.text("Starting up...", 5, 25, WIDTH, 2)
     display.update()
     os.stat(SECRETS_FILE)
 
@@ -170,7 +170,7 @@ try:
     n = 0
     while not wlan.isconnected() and wlan.status() >= 0:
         clear()
-        display.text(connecting_text, 0, 0, WIDTH, 2)
+        display.text(connecting_text, 5, 25, WIDTH, 2)
         display.update()
         connecting_text = f"Connecting {SPINNER_CHARS[n]}"
         
@@ -182,7 +182,7 @@ try:
     
     # TODO show connected status and flash backlight
     clear()
-    display.text("Connected!", 0, 0, WIDTH, 2)
+    display.text("Connected!", 15, 25, WIDTH, 2)
     display.update()
 
     for n in range(5):
