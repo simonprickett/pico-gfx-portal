@@ -23,6 +23,7 @@ WIDTH, HEIGHT = display.get_bounds()
 display.set_backlight(0)
 
 # Set the Real Time Clock from an NTP server.
+# Thanks to https://gist.github.com/aallan/581ecf4dc92cd53e3a415b7c33a1147c
 def set_time():
     # TODO display an updating time message...
 
