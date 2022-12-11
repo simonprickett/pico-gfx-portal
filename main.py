@@ -2,6 +2,8 @@ import json
 import machine
 import network
 import os
+import socket
+import struct
 import urequests
 import utime
 from gfx_pack import GfxPack, SWITCH_A, SWITCH_B, SWITCH_C, SWITCH_D, SWITCH_E
@@ -19,6 +21,29 @@ display = gp.display
 
 WIDTH, HEIGHT = display.get_bounds()
 display.set_backlight(0)
+
+# Set the Real Time Clock from an NTP server.
+def set_time():
+    # TODO display an updating time message...
+
+    ntp_query = bytearray(48)
+    ntp_query[0] = 0x1B
+
+    addr = socket.getaddrinfo("pool.ntp.org", 123)[0][-1]
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    try:
+        s.settimeout(1)
+        res = s.sendto(ntp_query, addr)
+        msg = s.recv(48)
+    finally:
+        s.close()
+
+    val = struct.unpack("!I", msg[40:44])[0]
+    t = val - 2208988800 # NTP delta
+    tm = utime.gmtime(t)
+    print(tm)
+    machine.RTC().datetime((tm[0], tm[1], tm[2], tm[6] + 1, tm[3], tm[4], tm[5], 0))
 
 # Figure out distance in miles between 2 points.
 def haversine(lat1, lon1, lat2, lon2):
@@ -38,14 +63,17 @@ def clear():
 display.set_font("bitmap8")
 
 def clock_mode():
+    set_time()
     gp.set_backlight(77, 77, 128, 1)
     display.set_font('bitmap14_outline')
 
-    while n in range(3):
-    #while True:
+    while True:
         current_time = machine.RTC().datetime()
 
-        hours = str(current_time[4])
+        # 12 hour clock.
+        hours = current_time[4] if current_time[4] < 13 else current_time[4] - 12
+        hours = 12 if hours == 0 else hours
+        hours = str(hours)
         mins = str(current_time[5])
         secs = str(current_time[6])
 
