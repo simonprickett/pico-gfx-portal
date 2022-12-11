@@ -1,8 +1,9 @@
 import json
+import machine
 import network
 import os
 import urequests
-import time
+import time # should this be utime?
 from gfx_pack import GfxPack, SWITCH_A, SWITCH_B, SWITCH_C, SWITCH_D, SWITCH_E
 from math import radians, cos, sin, asin, sqrt
 
@@ -37,10 +38,26 @@ def clear():
 display.set_font("bitmap8")
 
 def clock_mode():
-    clear()
-    gp.set_backlight(255, 0, 0, 0)
-    display.text("Clock mode...", 0, 0, WIDTH, 2)
-    display.update()
+    gp.set_backlight(77, 77, 128, 1)
+    display.set_font('bitmap14_outline')
+
+    while True:
+        current_time = machine.RTC().datetime()
+
+        hours = str(current_time[4])
+        mins = str(current_time[5])
+        secs = str(current_time[6])
+
+        hours = (f"0{hours}") if len(hours) == 1 else hours
+        mins = (f"0{mins}") if len(mins) == 1 else mins
+        secs = (f"0{secs}") if len(secs) == 1 else secs
+
+        time_str = f"{hours}:{mins}:{secs}"
+
+        clear()
+        display.text(time_str, 10, 15, WIDTH, 2)
+        display.update()
+        time.sleep(0.5)
             
 def weather_mode():
     clear()
@@ -76,6 +93,7 @@ def iss_mode():
         if country != OCEAN_COUNTRY:
             try:
                 city = geo_doc["address"]["city"]
+                city = (city[:10] + '...') if len(city) > 10 else city
             except Exception:
                 try:
                     city = geo_doc["address"]["suburb"]
@@ -139,7 +157,11 @@ def game_mode():
     clear()
     gp.set_backlight(0, 0, 255, 0)
     display.text("Game mode...", 0, 0, WIDTH, 2)
+    display.update()
+    display.set_font("bitmap6")
+    display.text("Game mode...", 0, 40, WIDTH, 2)
     display.update()   
+    display.set_font("bitmap8")
 
 def setup_mode():
     clear()
@@ -170,7 +192,7 @@ try:
     n = 0
     while not wlan.isconnected() and wlan.status() >= 0:
         clear()
-        display.text(connecting_text, 5, 25, WIDTH, 2)
+        display.text(connecting_text, 6, 25, WIDTH, 2)
         display.update()
         connecting_text = f"Connecting {SPINNER_CHARS[n]}"
         
