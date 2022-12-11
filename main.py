@@ -3,7 +3,7 @@ import machine
 import network
 import os
 import urequests
-import time # should this be utime?
+import utime
 from gfx_pack import GfxPack, SWITCH_A, SWITCH_B, SWITCH_C, SWITCH_D, SWITCH_E
 from math import radians, cos, sin, asin, sqrt
 
@@ -58,7 +58,7 @@ def clock_mode():
         clear()
         display.text(time_str, 10, 15, WIDTH, 2)
         display.update()
-        time.sleep(0.5)
+        utime.sleep(0.5)
             
 def weather_mode():
     clear()
@@ -86,8 +86,6 @@ def iss_mode():
 
         country = OCEAN_COUNTRY
         city = CITY_UNKNOWN
-
-        print(geo_doc)
 
         try:
             country = geo_doc["address"]["country"][:13]
@@ -151,13 +149,13 @@ def iss_mode():
         if city != old_city:
             for _ in range(3):
                 gp.set_backlight(0, 0, 0, 0)
-                time.sleep(0.2)
+                utime.sleep(0.2)
                 gp.set_backlight(backlight_r, backlight_g, backlight_b, 0)    
-                time.sleep(0.2)
+                utime.sleep(0.2)
             
             old_city = city
 
-        time.sleep(10)
+        utime.sleep(10)
 
 def game_mode():
     clear()
@@ -176,6 +174,18 @@ def setup_mode():
     display.set_font("bitmap8")
     display.text("Setup mode...", 0, 0, WIDTH, 2)
     display.update()
+
+def check_for_mode_change():
+    if gp.switch_pressed(SWITCH_A):
+        clock_mode()
+    elif gp.switch_pressed(SWITCH_B):
+        weather_mode()
+    elif gp.switch_pressed(SWITCH_C):
+        iss_mode()
+    elif gp.switch_pressed(SWITCH_D):
+        game_mode()
+    elif gp.switch_pressed(SWITCH_E):
+        setup_mode()
 
 # Main starts here...
 try:
@@ -208,7 +218,7 @@ try:
         if (n > len(SPINNER_CHARS) - 1):
             n = 0
 
-        time.sleep(0.2)
+        utime.sleep(0.2)
     
     # TODO show connected status and flash backlight
     clear()
@@ -217,9 +227,9 @@ try:
 
     for n in range(5):
         gp.set_backlight(0, 64, 0, 0)
-        time.sleep(0.2)
+        utime.sleep(0.2)
         gp.set_backlight(0, 0, 0, 0)
-        time.sleep(0.2)
+        utime.sleep(0.2)
 
     # Begin in clock mode...
     clock_mode()
@@ -229,15 +239,5 @@ except Exception:
     setup_mode()
 
 while True:
-    if gp.switch_pressed(SWITCH_A):
-        clock_mode()
-    elif gp.switch_pressed(SWITCH_B):
-        weather_mode()
-    elif gp.switch_pressed(SWITCH_C):
-        iss_mode()
-    elif gp.switch_pressed(SWITCH_D):
-        game_mode()
-    elif gp.switch_pressed(SWITCH_E):
-        setup_mode()
-
-    time.sleep(0.01)  # this number is how frequently the Pico checks for button presses
+    check_for_mode_change()
+    utime.sleep(0.01)  # this number is how frequently the Pico checks for button presses
