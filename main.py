@@ -41,7 +41,8 @@ def clock_mode():
     gp.set_backlight(77, 77, 128, 1)
     display.set_font('bitmap14_outline')
 
-    while True:
+    while n in range(3):
+    #while True:
         current_time = machine.RTC().datetime()
 
         hours = str(current_time[4])
@@ -69,6 +70,7 @@ def iss_mode():
     clear()
     # Backlight orange.
     gp.set_backlight(128, 16, 0, 0)
+    display.set_font("bitmap8")
     display.text("Locating ISS...", 0, 25, WIDTH, 2)
     display.update()
 
@@ -85,20 +87,24 @@ def iss_mode():
         country = OCEAN_COUNTRY
         city = CITY_UNKNOWN
 
+        print(geo_doc)
+
         try:
-            country = geo_doc["address"]["country"]
+            country = geo_doc["address"]["country"][:13]
         except Exception:
             pass
 
         if country != OCEAN_COUNTRY:
             try:
-                city = geo_doc["address"]["city"]
-                city = (city[:10] + '...') if len(city) > 10 else city
+                city = geo_doc["address"]["city"][:13]
             except Exception:
                 try:
-                    city = geo_doc["address"]["suburb"]
+                    city = geo_doc["address"]["suburb"][:13]
                 except Exception:
-                    pass
+                    try:
+                        city = geo_doc["address"]["state"][:13]
+                    except Exception:
+                        pass
 
         clear()
 
@@ -136,9 +142,9 @@ def iss_mode():
         display.text(f"ISS {iss_distance} mi", 0, 0, WIDTH, 2)
 
         if (country != OCEAN_COUNTRY):
-            display.text(city, 0, 25, WIDTH, 2)
+            display.text(city, 0, 22, WIDTH, 2)
 
-        display.text(f"{country}", 0, 50, WIDTH, 2)
+        display.text(f"{country}", 0, 44, WIDTH, 2)
         display.update()    
 
         # If city changed, flash the backlight...
@@ -156,6 +162,7 @@ def iss_mode():
 def game_mode():
     clear()
     gp.set_backlight(0, 0, 255, 0)
+    display.set_font("bitmap8")
     display.text("Game mode...", 0, 0, WIDTH, 2)
     display.update()
     display.set_font("bitmap6")
@@ -166,6 +173,7 @@ def game_mode():
 def setup_mode():
     clear()
     gp.set_backlight(255, 0, 255, 0)
+    display.set_font("bitmap8")
     display.text("Setup mode...", 0, 0, WIDTH, 2)
     display.update()
 
